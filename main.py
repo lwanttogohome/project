@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import re
 
@@ -76,7 +77,7 @@ st.markdown(
         color: #666666 !important;
     }
 
-    /* 일반적인 카드 느낌 */
+    /* 카드 */
     .result-card {
         background-color: #181818;
         border: 1px solid #303030;
@@ -84,29 +85,6 @@ st.markdown(
         padding: 22px;
         margin-top: 15px;
         margin-bottom: 15px;
-    }
-
-    /* 안전도 결과 */
-    .security-result {
-        background-color: #181818;
-        border: 1px solid #303030;
-        border-radius: 10px;
-        padding: 30px;
-        text-align: center;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-    .security-title {
-        color: #888888;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .security-score {
-        color: #eeeeee;
-        font-size: 16px;
-        margin-top: 10px;
     }
 
     /* 검사 항목 */
@@ -119,18 +97,6 @@ st.markdown(
         color: #cccccc;
     }
 
-    /* 장점 */
-    .good-item {
-        color: #bdbdbd;
-        padding: 6px 0;
-    }
-
-    /* 경고 */
-    .warning-item {
-        color: #bdbdbd;
-        padding: 6px 0;
-    }
-
     /* 하단 안내 */
     .footer-text {
         color: #666666;
@@ -139,11 +105,10 @@ st.markdown(
         margin-top: 25px;
     }
 
-    /* Streamlit 기본 alert */
+    /* Streamlit 기본 알림창 */
     div[data-testid="stAlert"] {
         background-color: #181818 !important;
         border: 1px solid #333333 !important;
-        color: #cccccc !important;
     }
 
     /* 버튼 */
@@ -200,7 +165,7 @@ def check_password(password):
     """
     비밀번호의 여러 가지 특징을 검사합니다.
 
-    검사하는 항목:
+    검사 항목:
     - 길이
     - 대문자
     - 소문자
@@ -240,7 +205,7 @@ def check_password(password):
         re.search(r"(.)\1\1", password)
     )
 
-    # 매우 흔한 비밀번호 목록
+    # 매우 흔하게 사용하는 단순한 비밀번호
     common_passwords = [
         "123456",
         "12345678",
@@ -262,7 +227,7 @@ def check_password(password):
 
 
 # ============================================================
-# 6. 비밀번호가 입력되었을 때
+# 6. 비밀번호가 입력되었을 때 검사
 # ============================================================
 
 if password:
@@ -419,30 +384,22 @@ if password:
     if result["common"]:
 
         level = "매우 위험"
-        icon = "🚨"
-        level_color = "#ff4b4b"
 
     elif score <= 2:
 
         level = "약함"
-        icon = "●"
-        level_color = "#ff4b4b"
 
     elif score <= 4:
 
         level = "보통"
-        icon = "●"
-        level_color = "#d9a441"
 
     else:
 
         level = "강함"
-        icon = "●"
-        level_color = "#54b86b"
 
 
     # ========================================================
-    # 16. 결과 영역
+    # 16. 검사 결과
     # ========================================================
 
     st.divider()
@@ -450,295 +407,32 @@ if password:
     st.subheader("검사 결과")
 
 
-    st.markdown(
-        f"""
-        <div class="security-result">
+    # HTML을 사용하지 않고 Streamlit 기본 기능으로 표시합니다.
+    # 그래서 <div>, <strong> 등의 코드가 화면에 나타나지 않습니다.
 
-            <div class="security-title">
-                PASSWORD SECURITY
-            </div>
+    if level == "매우 위험":
 
-            <div style="
-                color:{level_color};
-                font-size:34px;
-                font-weight:700;
-                margin-top:8px;
-            ">
-                {icon} {level}
-            </div>
+        st.error(
+            f"🚨 {level}"
+        )
 
-            <div class="security-score">
-                안전도 점수&nbsp;&nbsp;
-                <strong>{score} / 6</strong>
-            </div>
+    elif level == "약함":
 
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        st.error(
+            f"🔴 {level}"
+        )
 
+    elif level == "보통":
 
-    # ========================================================
-    # 17. 점수 막대
-    # ========================================================
-
-    st.progress(score / 6)
-
-
-    # ========================================================
-    # 18. 검사 항목
-    # ========================================================
-
-    st.subheader("검사 항목")
-
-    col1, col2 = st.columns(2)
-
-
-    # 왼쪽
-    with col1:
-
-        if result["length"] >= 8:
-
-            st.markdown(
-                f"""
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;길이 {result["length"]}자
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                f"""
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;길이 {result["length"]}자
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-        if result["uppercase"]:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;대문자 포함
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;대문자 없음
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-        if result["lowercase"]:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;소문자 포함
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;소문자 없음
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-    # 오른쪽
-    with col2:
-
-        if result["number"]:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;숫자 포함
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;숫자 없음
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-        if result["special"]:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;특수문자 포함
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;특수문자 없음
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-        if result["repeated"]:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#ff4b4b;">✕</span>
-                    &nbsp;반복 문자 발견
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                """
-                <div class="check-item">
-                    <span style="color:#777777;">✓</span>
-                    &nbsp;반복 문자 없음
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-    # ========================================================
-    # 19. 잘한 점
-    # ========================================================
-
-    if advantages:
-
-        st.subheader("좋은 점")
-
-        for item in advantages:
-
-            st.markdown(
-                f"""
-                <div class="good-item">
-                    ✓ &nbsp;{item}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-    # ========================================================
-    # 20. 개선할 점
-    # ========================================================
-
-    if warnings:
-
-        st.subheader("개선할 점")
-
-        for item in warnings:
-
-            st.markdown(
-                f"""
-                <div class="warning-item">
-                    <span style="color:#d9a441;">!</span>
-                    &nbsp;{item}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        st.warning(
+            f"🟡 {level}"
+        )
 
     else:
 
         st.success(
-            "기본적인 안전도 검사 기준을 모두 만족했습니다."
+            f"🟢 {level}"
         )
 
 
-# ============================================================
-# 21. 비밀번호가 입력되지 않았을 때
-# ============================================================
-
-else:
-
-    st.markdown(
-        """
-        <div class="result-card">
-
-            <div style="
-                color:#777777;
-                font-size:14px;
-                margin-bottom:8px;
-            ">
-                PASSWORD CHECKER
-            </div>
-
-            <div style="
-                color:#aaaaaa;
-                font-size:15px;
-            ">
-                테스트용 비밀번호를 입력하면
-                안전도를 확인할 수 있습니다.
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 22. 하단 안내
-# ============================================================
-
-st.markdown(
-    """
-    <div class="footer-text">
-        입력된 비밀번호는 이 앱에서 별도로 저장하지 않습니다.<br>
-        실제 비밀번호 대신 테스트용 비밀번호를 사용하세요.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    # 안전도 점수
